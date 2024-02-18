@@ -1,6 +1,9 @@
 package com.likeahim.cardwar.cards;
 
 public class Jack implements Card {
+
+    private final int strength = 10;
+    private final char initial = 'J';
     private CardColor color;
 
     public Jack(CardColor color) {
@@ -14,17 +17,12 @@ public class Jack implements Card {
 
     @Override
     public int getStrength() {
-        return 10;
+        return strength;
     }
 
     @Override
     public char getInitial() {
-        return 'J';
-    }
-
-    @Override
-    public void setColor(CardColor color) {
-        this.color = color;
+        return initial;
     }
 
     @Override
@@ -32,5 +30,10 @@ public class Jack implements Card {
         String display = "";
         display += getInitial() + color.toString();
         return display;
+    }
+
+    @Override
+    public int compareTo(Card card) {
+        return Integer.compare(card.getStrength(), this.getStrength());
     }
 }

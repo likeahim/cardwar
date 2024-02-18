@@ -1,12 +1,17 @@
 package com.likeahim.cardwar.cards;
 
+import java.util.Comparator;
+import java.util.Objects;
+
 public class Ace implements Card {
+
+    private static final int strength = 13;
+    private final char initial = 'A';
+    private final CardColor color;
 
     public Ace(CardColor color) {
         this.color = color;
     }
-
-    private CardColor color;
 
     @Override
     public CardColor getColor() {
@@ -15,24 +20,38 @@ public class Ace implements Card {
 
     @Override
     public int getStrength() {
-        return 13;
+        return strength;
     }
 
     @Override
     public char getInitial() {
-        return 'A';
+        return initial;
     }
 
-    @Override
-    public void setColor(CardColor color) {
-        this.color = color;
-    }
 
     @Override
     public String toString() {
         String display = "";
-        display += getInitial() + color.toString();
+        display += initial + color.toString();
         return display;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ace ace = (Ace) o;
+        return strength == ace.strength;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(strength);
+    }
+
+    @Override
+    public int compareTo(Card card) {
+        return Integer.compare(card.getStrength(), this.getStrength());
     }
 }
 

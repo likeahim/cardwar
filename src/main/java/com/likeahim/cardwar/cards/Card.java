@@ -1,9 +1,8 @@
 package com.likeahim.cardwar.cards;
 
-public interface Card {
+public interface Card extends Comparable<Card>{
     CardColor getColor();
     int getStrength();
     char getInitial();
-    void setColor(CardColor color);
 }
 
