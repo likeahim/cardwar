@@ -72,7 +72,7 @@ public class Player {
 
     public void setPass(boolean pass) {
         this.pass = pass;
-        PokerTable.getSingleGamePlayers().remove(this);
+//        PokerTable.getSingleGamePlayers().remove(this);
     }
 
     public boolean isAllIn() {
@@ -143,7 +143,8 @@ public class Player {
 
     public void raiseTheBet() {
         double raiseAmount = UserInput.putRaiseAmount();
-        setAmountBetAlready(raiseAmount);
+        double toCheck = PokerTable.getCurrentBet() - amountBetAlready;
+        setAmountBetAlready(raiseAmount + toCheck);
         PokerTable.setCurrentBet(raiseAmount);
         setCheckBet(true);
         PokerTable.getPlayersAtTable().stream()

@@ -20,7 +20,7 @@ public class PokerTable {
     private static List<Card> communityCards = new LinkedList<>();
     private static double smallBlind = 20;
     private static double bigBlind = smallBlind * 2;
-    private static double CURRENT_BET;
+    private static double CURRENT_BET = bigBlind;
     private Player dealer;
     private Player playerOnSmallBlind;
     private Player playerOnBigBlind;
@@ -48,7 +48,7 @@ public class PokerTable {
         setSingleGamePlayers(playersAtTable);
         while (playersNumber > 1) {
             shuffleAndDealCuffsCards();
-            setCurrentBet(bigBlind);
+//            setCurrentBet(bigBlind); //CURRENT_BET already defined
             if (actionChoice()) {
                 communityCards = dealFlopCards(); //or better as void?
                 System.out.println("community cards: " + communityCards);
@@ -57,17 +57,19 @@ public class PokerTable {
             if(actionChoice()) {
                 communityCards = dealOneCard();
                 System.out.println("community cards: " + communityCards);
+                refreshPlayersBettingStatus();
             }
             if (actionChoice()) {
                 communityCards = dealOneCard();
                 System.out.println("community cards: " + communityCards);
+                refreshPlayersBettingStatus();
             }
             if (actionChoice()) {
                 showdown();
 //                calculateWinner();
             }
 
-            releaseAndCleanThePot();
+//            releaseAndCleanThePot();
             changeBlinds();
             cleanCuffsForAllPlayers();
             showdown();
@@ -107,10 +109,14 @@ public class PokerTable {
                 .forEach(Player::cleanCuffsCards);
     }
 
+    public static List<Card> getCommunityCards() {
+        return communityCards;
+    }
+
     private boolean actionChoice() {
         while (!bettingFinished())
             for (Player player : playersAtTable) {
-                if(!player.isCheckBet())
+                if(!player.isCheckBet() && !player.isPass())
                     UserInput.choiceAction(player);
             }
 //        while(!SINGLE_WINNER && SINGLE_GAME_PLAYER.size() > 1) {
@@ -198,18 +204,7 @@ public class PokerTable {
     }
 
     public static void setCurrentBet(double currentBet) {
-        List<Double> list = playersAtTable.stream()
-                .filter(player -> player.isAllIn())
-                .map(p -> p.getAmountBetAlready())
-                .toList();
-        if (list.isEmpty())
-            CURRENT_BET = currentBet;
-        else {
-            OptionalInt min = IntStream.range(0, list.size())
-                    .min();
-            double newCurrentBet = min.getAsInt();
-            CURRENT_BET = newCurrentBet;
-        }
+        CURRENT_BET += currentBet;
     }
 
     public int getPlayersNumber() {

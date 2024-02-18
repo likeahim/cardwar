@@ -1,6 +1,7 @@
 package com.likeahim.texas.ui;
 
 import com.likeahim.texas.logic.Player;
+import com.likeahim.texas.logic.PokerTable;
 
 import java.util.Scanner;
 
@@ -47,13 +48,7 @@ public class UserInput {
     }
 
     public static void choiceAction(Player player) {
-        System.out.println(player.getName() + """
-                has choice:
-                1 -> pass
-                2 -> check
-                3 -> raise
-                4 -> all in
-                """);
+        currentGameInfo(player);
         int choice = SCANNER.nextInt();
         SCANNER.nextLine();
         switch (choice) {
@@ -61,6 +56,33 @@ public class UserInput {
             case 2 -> player.checkTheBet();
             case 3 -> player.raiseTheBet();
             case 4 -> player.betAllIn();
+        }
+    }
+
+    private static void currentGameInfo(Player player) {
+        if(!PokerTable.getCommunityCards().isEmpty()) {
+            System.out.println(player.getName() + " " + player.getCuffsCards() + "\n" +
+                               "current bet: " + PokerTable.getCurrentBet() + "\n" +
+                               "player bet already: " + player.getAmountBetAlready() +
+                               ", community cards: " + PokerTable.getCommunityCards() + "\n" +
+                               """
+                                       has choice:
+                                       1 -> pass
+                                       2 -> check
+                                       3 -> raise
+                                       4 -> all in
+                                       """);
+        } else {
+            System.out.println(player.getName() + " " + player.getCuffsCards() + "\n" +
+                               "current bet: " + PokerTable.getCurrentBet() + "\n" +
+                               "player bet already: " + player.getAmountBetAlready() + "\n" +
+                               """
+                                       has choice:
+                                       1 -> pass
+                                       2 -> check
+                                       3 -> raise
+                                       4 -> all in
+                                       """);
         }
     }
 }
