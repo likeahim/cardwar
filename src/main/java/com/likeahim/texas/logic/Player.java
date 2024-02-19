@@ -20,6 +20,7 @@ public class Player {
     private boolean allIn = false;
     private boolean checkBet = false;
     private boolean raisedBet = false;
+    private List<Card> strongestHand = new ArrayList<>();
     private List<Card> cuffsCards = new ArrayList<>();
     public List<Card> getCuffsCards() {
         return cuffsCards;
@@ -36,6 +37,14 @@ public class Player {
     public Player(String name, double credit) {
         this.name = name;
         this.credit = credit;
+    }
+
+    public List<Card> getStrongestHand() {
+        return strongestHand;
+    }
+
+    public void setStrongestHand(List<Card> strongestHand) {
+        this.strongestHand = new ArrayList<>(strongestHand);
     }
 
     public String getName() {
@@ -150,7 +159,7 @@ public class Player {
         PokerTable.getPlayersAtTable().stream()
                 .filter(player -> player.getAmountBetAlready() < PokerTable.getCurrentBet())
                 .forEach(player -> player.setCheckBet(false));
-        credit -= raiseAmount;
+        credit -= (raiseAmount - toCheck);
         if (!PokerTable.getSingleGamePlayers().contains(this)) {
             PokerTable.getSingleGamePlayers().add(this);
         }

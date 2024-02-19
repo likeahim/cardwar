@@ -69,7 +69,8 @@ public class PokerTable {
 //                calculateWinner();
             }
 
-//            releaseAndCleanThePot();
+            singleGameWinner = Hands.getSingleGameWinner(getSingleGamePlayers());
+            releaseAndCleanThePot();
             changeBlinds();
             cleanCuffsForAllPlayers();
             showdown();
@@ -116,7 +117,7 @@ public class PokerTable {
     private boolean actionChoice() {
         while (!bettingFinished())
             for (Player player : playersAtTable) {
-                if(!player.isCheckBet() && !player.isPass())
+                if(!player.isCheckBet() && !player.isPass() && !player.isAllIn())
                     UserInput.choiceAction(player);
             }
 //        while(!SINGLE_WINNER && SINGLE_GAME_PLAYER.size() > 1) {
@@ -134,7 +135,7 @@ public class PokerTable {
 //        }
         return singleGameWinner == null;
     }
-
+/*check if all players already resigned or checked the bet*/
     private boolean bettingFinished() {
         long count = playersAtTable.stream()
                 .filter(player -> player.isCheckBet())

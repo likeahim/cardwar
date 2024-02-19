@@ -76,4 +76,33 @@ public class Hands {
                 .toList();
         return list;
     }
+
+
+    public static List<List<Card>> generateCombination(List<Card> numbers, int combinationLength) {
+        Set<List<Card>> workSet = new HashSet<>();
+        Random random = new Random();
+        while(workSet.size() < 21) {
+            List<Card> workList = new ArrayList<>();
+            while(workList.size() < 5) {
+                int index = random.nextInt(7);
+                Card card = numbers.get(index);
+                if(!workList.contains(card))
+                    workList.add(card);
+            }
+            workSet.add(new ArrayList<>(workList));
+        }
+
+        return workSet.stream().toList();
+    }
+    /*return Player, who has the highest hand in showdown*/
+    public static Player getSingleGameWinner(List<Player> singleGamePlayers) {
+        List<Player> winnerPlayer = new ArrayList<>(singleGamePlayers);
+        for(int i = 0; i < singleGamePlayers.size(); i++) {
+            List<Card> cuffsCards = singleGamePlayers.get(i).getCuffsCards();
+            List<Card> playersCardsInSingleGame = new ArrayList<>(PokerTable.getCommunityCards());
+            playersCardsInSingleGame.addAll(cuffsCards);
+            List<List<Card>> lists = generateCombination(playersCardsInSingleGame, 5);
+
+        }
+    }
 }
