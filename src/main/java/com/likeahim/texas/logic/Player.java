@@ -4,10 +4,11 @@ import com.likeahim.cardwar.cards.Card;
 import com.likeahim.texas.ui.UserInput;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class Player {
+public class Player implements Comparator<Player> {
     private final String name;
     private double credit;
 
@@ -20,8 +21,10 @@ public class Player {
     private boolean allIn = false;
     private boolean checkBet = false;
     private boolean raisedBet = false;
-    private List<Card> strongestHand = new ArrayList<>();
+    private List<Card> strongestHandList = new ArrayList<>();
     private List<Card> cuffsCards = new ArrayList<>();
+    private Hand strongestHandMark;
+
     public List<Card> getCuffsCards() {
         return cuffsCards;
     }
@@ -39,12 +42,20 @@ public class Player {
         this.credit = credit;
     }
 
-    public List<Card> getStrongestHand() {
-        return strongestHand;
+    public Hand getStrongestHandMark() {
+        return strongestHandMark;
     }
 
-    public void setStrongestHand(List<Card> strongestHand) {
-        this.strongestHand = new ArrayList<>(strongestHand);
+    public void setStrongestHandMark(Hand strongestHandMark) {
+        this.strongestHandMark = strongestHandMark;
+    }
+
+    public List<Card> getStrongestHandList() {
+        return strongestHandList;
+    }
+
+    public void setStrongestHandList(List<Card> strongestHandList) {
+        this.strongestHandList = new ArrayList<>(strongestHandList);
     }
 
     public String getName() {
@@ -81,7 +92,7 @@ public class Player {
 
     public void setPass(boolean pass) {
         this.pass = pass;
-//        PokerTable.getSingleGamePlayers().remove(this);
+        PokerTable.getSingleGamePlayers().remove(this);
     }
 
     public boolean isAllIn() {
@@ -114,27 +125,6 @@ public class Player {
 
     public void setAmountBetAlready(double amountBetAlready) {
         this.amountBetAlready += amountBetAlready;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
-        return Double.compare(credit, player.credit) == 0 && Objects.equals(name, player.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, credit);
-    }
-
-    @Override
-    public String toString() {
-        if(!cuffsCards.isEmpty())
-            return "player " + name + ", credit balance: " + credit + " " + cuffsCards + " || already bet: " + amountBetAlready;
-        else
-            return "player " + name + ", credit balance: " + credit;
     }
 
     public void checkTheBet() {
@@ -172,5 +162,31 @@ public class Player {
         PokerTable.setCurrentBet(credit);
         if (!PokerTable.getSingleGamePlayers().contains(this))
             PokerTable.getSingleGamePlayers().add(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Double.compare(credit, player.credit) == 0 && Objects.equals(name, player.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, credit);
+    }
+
+    @Override
+    public String toString() {
+        if (!cuffsCards.isEmpty())
+            return "player " + name + ", credit balance: " + credit + " " + cuffsCards + " || already bet: " + amountBetAlready;
+        else
+            return "player " + name + ", credit balance: " + credit;
+    }
+    //method helps sort players by strongest hand
+    public int compare(Player p1, Player p2) {
+        int a = p1.getStrongestHandMark().compareTo(p2.getStrongestHandMark());
+        return a;
     }
 }

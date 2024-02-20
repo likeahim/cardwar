@@ -7,8 +7,6 @@ import com.likeahim.texas.ui.UserInput;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.OptionalInt;
-import java.util.stream.IntStream;
 
 public class PokerTable {
     Deck deck;
@@ -69,7 +67,7 @@ public class PokerTable {
 //                calculateWinner();
             }
 
-            singleGameWinner = Hands.getSingleGameWinner(getSingleGamePlayers());
+            singleGameWinner = HandsCalculator.getSingleGameWinner(getSingleGamePlayers());
             releaseAndCleanThePot();
             changeBlinds();
             cleanCuffsForAllPlayers();

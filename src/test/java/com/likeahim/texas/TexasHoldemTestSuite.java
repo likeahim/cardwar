@@ -1,7 +1,7 @@
 package com.likeahim.texas;
 
 import com.likeahim.cardwar.cards.*;
-import com.likeahim.texas.logic.Hands;
+import com.likeahim.texas.logic.HandsCalculator;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class TexasHoldemTestSuite {
                 new Seven(CardColor.HEARTS),
                 new Jack(CardColor.DIAMONDS));
         //When
-        List<List<Card>> lists = Hands.generateCombination(cards, 5);
+        List<List<Card>> lists = HandsCalculator.generateCombination(cards, 5);
         int size = lists.size();
 
         //Then
