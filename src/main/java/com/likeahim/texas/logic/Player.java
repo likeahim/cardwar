@@ -185,8 +185,8 @@ public class Player implements Comparator<Player> {
             return "player " + name + ", credit balance: " + credit;
     }
     //method helps sort players by strongest hand
+    @Override
     public int compare(Player p1, Player p2) {
-        int a = p1.getStrongestHandMark().compareTo(p2.getStrongestHandMark());
-        return a;
+        return p1.getStrongestHandMark().compareTo(p2.getStrongestHandMark());
     }
 }

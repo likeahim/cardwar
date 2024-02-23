@@ -35,6 +35,6 @@ public class Three implements Card {
 
     @Override
     public int compareTo(Card card) {
-        return Integer.compare(card.getStrength(), this.getStrength());
+        return -Integer.compare(card.getStrength(), this.getStrength());
     }
 }

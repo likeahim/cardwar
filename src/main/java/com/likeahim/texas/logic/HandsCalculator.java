@@ -134,7 +134,7 @@ public class HandsCalculator {
             List<Card> playersCardsInSingleGame = new ArrayList<>(PokerTable.getCommunityCards());
             playersCardsInSingleGame.addAll(player.getCuffsCards());
             List<List<Card>> lists = generateCombination(playersCardsInSingleGame, 5);
-            calculatePlayersBestHand(lists, player);
+            setPlayersBestHand(lists, player);
 
         }
         List<Player> list = singleGamePlayers.stream()
@@ -143,21 +143,67 @@ public class HandsCalculator {
         return list.get(0);
     }
 
-    private static void calculatePlayersBestHand(List<List<Card>> lists, Player player) {
+    private static void setPlayersBestHand(List<List<Card>> lists, Player player) {
         Hand hand = Hand.HIGH_CARD;
         hand.setSingleGameStrength(0);
         for (List<Card> list : lists) {
             Hand tempHand = checkWhichHand(list);
-            Integer sum = list.stream()
-                    .map(Card::getStrength)
-                    .reduce(Integer::sum)
-                            .get();
-            tempHand.setSingleGameStrength(sum);
+//            Integer sum = list.stream()
+//                    .map(Card::getStrength)
+//                    .reduce(Integer::sum)
+//                            .get();
+//            int sum = calculateHandsStrength(hand, list);
+//            tempHand.setSingleGameStrength(sum);
             if(tempHand.getSingleGameStrength() > hand.getSingleGameStrength()) {
                 player.setStrongestHandMark(tempHand);
                 player.setStrongestHandList(list);
             }
         }
+    }
+
+    private static int calculateHandsStrength(Hand hand, List<Card> handList) {
+        int result = 0;
+        switch (hand) {
+            case Hand.ONE_PAIR -> result = onePairScore(handList);
+            case Hand.TWO_PAIRS -> result = twoPairsScore(handList);
+            case Hand.THREE_OF_A_KIND -> result = threeOfAKindScore(handList);
+            case Hand.STRAIGHT -> result = straightScore(handList);
+            case Hand.FLUSH -> result = flushScore(handList);
+            case Hand.FULL_HOUSE -> result = fullHouseScore(handList);
+            case Hand.FOUR_OF_A_KIND -> result = fourOfAKindScore(handList);
+            case Hand.STRAIGHT_FLUSH -> result = straightFlushScore(handList);
+            case Hand.HIGH_CARD -> result = handList.stream()
+                    .map(Card::getStrength)
+                    .max(Integer::compare).get();
+        }
+        return result;
+    }
+
+    public static int twoPairsScore(List<Card> handList) {
+        List<Integer> listWithDuplicates = getListWithDuplicates(handList);
+        List<Integer> listSorted = listWithDuplicates.stream()
+                .sorted(Integer::compareTo)
+                .toList();
+        Integer pairBaseBigger = listSorted.get(1); ///how to reverse sorting
+        Integer pairBaseSmaller = listSorted.get(0);
+        int lastCard = handList.stream()
+                .map(Card::getStrength)
+                .filter(c -> !listWithDuplicates.contains(c))
+                .reduce(0, Integer::sum);
+        return pairBaseBigger*151 + pairBaseSmaller*13 + lastCard;
+    }
+
+    /*method takes pair base, multiply by 38 and add to result every single cards strength, which doesn't belong to pair*/
+    public static int onePairScore(List<Card> handList) {
+        List<Integer> listWithDuplicates = getListWithDuplicates(handList);
+        Integer pairBase = listWithDuplicates.get(0);
+        List<Integer> list = handList.stream()
+                .map(Card::getStrength)
+                .filter(c -> !(c.equals(pairBase)))
+                .toList();
+
+        return pairBase*38 + list.stream()
+                .reduce(0, Integer::sum);
     }
 
     private static Hand checkWhichHand(List<Card> list) {
