@@ -26,7 +26,8 @@ public class HandsCalculator {
     private Card retrievACard(int n) {
         return mapOfCards.getMapOfCards().get(n);
     }
-//method to call as last
+
+    //method to call as last
     public static int checkHigherCard(List<Card> showdownCards) {
         return showdownCards.stream()
                 .map(Card::getStrength)
@@ -74,6 +75,7 @@ public class HandsCalculator {
         double sum = getSumOfList(list);
         return list.size() == 3 && sum / list.size() != list.get(0);
     }
+
     public static boolean checkFourOfAKind(List<Card> showdownCards) {
         List<Integer> list = getListWithDuplicates(showdownCards);
         double sum = getSumOfList(list);
@@ -154,7 +156,7 @@ public class HandsCalculator {
 //                            .get();
 //            int sum = calculateHandsStrength(hand, list);
 //            tempHand.setSingleGameStrength(sum);
-            if(tempHand.getSingleGameStrength() > hand.getSingleGameStrength()) {
+            if (tempHand.getSingleGameStrength() > hand.getSingleGameStrength()) {
                 player.setStrongestHandMark(tempHand);
                 player.setStrongestHandList(list);
             }
@@ -164,22 +166,71 @@ public class HandsCalculator {
     private static int calculateHandsStrength(Hand hand, List<Card> handList) {
         int result = 0;
         switch (hand) {
-            case Hand.ONE_PAIR -> result = onePairScore(handList);
-            case Hand.TWO_PAIRS -> result = twoPairsScore(handList);
-            case Hand.THREE_OF_A_KIND -> result = threeOfAKindScore(handList);
-            case Hand.STRAIGHT -> result = straightScore(handList);
-            case Hand.FLUSH -> result = flushScore(handList);
-            case Hand.FULL_HOUSE -> result = fullHouseScore(handList);
-            case Hand.FOUR_OF_A_KIND -> result = fourOfAKindScore(handList);
-            case Hand.STRAIGHT_FLUSH -> result = straightFlushScore(handList);
-            case Hand.HIGH_CARD -> result = handList.stream()
+            case ONE_PAIR -> result = calculateOnePairScore(handList);
+            case TWO_PAIRS -> result = calculateTwoPairsScore(handList);
+            case THREE_OF_A_KIND -> result = calculateThreeOfAKindScore(handList);
+            case STRAIGHT -> result = calculateStraightScore(handList);
+            case FLUSH -> result = calculateFlushScore(handList);
+            case FULL_HOUSE -> result = fullHouseScore(handList);
+            case FOUR_OF_A_KIND -> result = calculateFourOfAKindScore(handList);
+            case STRAIGHT_FLUSH -> result = straightFlushScore(handList);
+            case HIGH_CARD -> result = handList.stream()
                     .map(Card::getStrength)
                     .max(Integer::compare).get();
         }
         return result;
     }
 
-    public static int twoPairsScore(List<Card> handList) {
+    /*sums strength all cards and multiply it by power of enum STRAIGHT_FLUSH*/
+    private static int straightFlushScore(List<Card> handList) {
+        return calculateStraightScore(handList) * Hand.STRAIGHT_FLUSH.getPower();
+    }
+
+    /*multiply four of a kind base by power of enum FOUR_OF_A_KIND
+    * and add last cards strength*/
+    public static int calculateFourOfAKindScore(List<Card> handList) {
+        List<Integer> listWithDuplicates = getListWithDuplicates(handList);
+        Integer fourOfAKindBase = listWithDuplicates.get(0);
+        List<Integer> listWithHighCard = handList.stream()
+                .map(Card::getStrength)
+                .filter(c -> !(c.equals(fourOfAKindBase)))
+                .toList();
+        return fourOfAKindBase * Hand.FOUR_OF_A_KIND.getPower() + listWithHighCard.get(0);
+    }
+
+    private static int fullHouseScore(List<Card> handList) {
+        return 0;
+    }
+
+    /*sums strength all cards and multiply it by power of enum FLUSH*/
+    private static int calculateFlushScore(List<Card> handList) {
+        return calculateStraightScore(handList) * Hand.FLUSH.getPower();
+    }
+
+    /*sums strength all cards*/
+    public static int calculateStraightScore(List<Card> handList) {
+        return handList.stream()
+                .map(Card::getStrength)
+                .sorted(Integer::compareTo)
+                .mapToInt(Integer::intValue).sum();
+    }
+
+    /*sums: bases strength multiply by 100 and other two cards strength*/
+    public static int calculateThreeOfAKindScore(List<Card> handList) {
+        List<Integer> listWithDuplicates = getListWithDuplicates(handList);
+        Integer threeOfAKindBase = listWithDuplicates.get(0);
+        List<Integer> listWithHighCards = handList.stream()
+                .map(Card::getStrength)
+                .filter(c -> !(c.equals(threeOfAKindBase)))
+                .sorted(Integer::compareTo)
+                .toList();
+
+        return threeOfAKindBase * 100 + listWithHighCards.get(0) + listWithHighCards.get(1);
+    }
+
+    /*sums: bigger pairs base and multiply it by 151, than takes smaller pairs base
+    * and multiply it by 13 and strength of card, which doesn't belong to any pair*/
+    public static int calculateTwoPairsScore(List<Card> handList) {
         List<Integer> listWithDuplicates = getListWithDuplicates(handList);
         List<Integer> listSorted = listWithDuplicates.stream()
                 .sorted(Integer::compareTo)
@@ -190,11 +241,11 @@ public class HandsCalculator {
                 .map(Card::getStrength)
                 .filter(c -> !listWithDuplicates.contains(c))
                 .reduce(0, Integer::sum);
-        return pairBaseBigger*151 + pairBaseSmaller*13 + lastCard;
+        return pairBaseBigger * 151 + pairBaseSmaller * 13 + lastCard;
     }
 
     /*method takes pair base, multiply by 38 and add to result every single cards strength, which doesn't belong to pair*/
-    public static int onePairScore(List<Card> handList) {
+    public static int calculateOnePairScore(List<Card> handList) {
         List<Integer> listWithDuplicates = getListWithDuplicates(handList);
         Integer pairBase = listWithDuplicates.get(0);
         List<Integer> list = handList.stream()
@@ -202,7 +253,7 @@ public class HandsCalculator {
                 .filter(c -> !(c.equals(pairBase)))
                 .toList();
 
-        return pairBase*38 + list.stream()
+        return pairBase * 38 + list.stream()
                 .reduce(0, Integer::sum);
     }
 

@@ -59,6 +59,7 @@ public class UserInput {
         }
     }
 
+    //remove from this class - user input only
     private static void currentGameInfo(Player player) {
         if(!PokerTable.getCommunityCards().isEmpty()) {
             System.out.println(player.getName() + " " + player.getCuffsCards() + "\n" +

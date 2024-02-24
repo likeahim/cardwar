@@ -47,8 +47,8 @@ public class TexasHoldemTestSuite {
                 new Four(CardColor.HEARTS)
         );
         //When
-        int result = HandsCalculator.onePairScore(cards);
-        int result2 = HandsCalculator.onePairScore(cards2);
+        int result = HandsCalculator.calculateOnePairScore(cards);
+        int result2 = HandsCalculator.calculateOnePairScore(cards2);
 
         //Then
         assertEquals(57, result);
@@ -73,10 +73,91 @@ public class TexasHoldemTestSuite {
                 new King(CardColor.CLUBS)
         );
         //When
-        int result1 = HandsCalculator.twoPairsScore(cards1);
-        int result2 = HandsCalculator.twoPairsScore(cards2);
+        int result1 = HandsCalculator.calculateTwoPairsScore(cards1);
+        int result2 = HandsCalculator.calculateTwoPairsScore(cards2);
         //Then
         assertEquals(328, result1);
         assertEquals(1988, result2);
+    }
+
+    @Test
+    void testcalculateThreeOfAKind() {
+        //Given
+        List<Card> cards1 = List.of(
+                new Two(CardColor.HEARTS),
+                new Two(CardColor.SPADES),
+                new Two(CardColor.DIAMONDS),
+                new Three(CardColor.CLUBS),
+                new Four(CardColor.HEARTS)
+        );
+        List<Card> cards2 = List.of(
+                new Ace(CardColor.DIAMONDS),
+                new Ace(CardColor.SPADES),
+                new Ace(CardColor.HEARTS),
+                new King(CardColor.CLUBS),
+                new Queen(CardColor.HEARTS)
+        );
+
+        //When
+        int result1 = HandsCalculator.calculateThreeOfAKindScore(cards1);
+        int result2 = HandsCalculator.calculateThreeOfAKindScore(cards2);
+
+        //Then
+        assertEquals(105, result1);
+        assertEquals(1323, result2);
+    }
+
+    @Test
+    void testCalculateStraightScore() {
+        //Given
+        List<Card> cards1 = List.of(
+                new Two(CardColor.HEARTS),
+                new Three(CardColor.SPADES),
+                new Four(CardColor.DIAMONDS),
+                new Five(CardColor.CLUBS),
+                new Six(CardColor.HEARTS)
+        );
+        List<Card> cards2 = List.of(
+                new King(CardColor.DIAMONDS),
+                new Ace(CardColor.SPADES),
+                new Queen(CardColor.HEARTS),
+                new Jack(CardColor.CLUBS),
+                new Ten(CardColor.HEARTS)
+        );
+
+        //When
+        int result1 = HandsCalculator.calculateStraightScore(cards1);
+        int result2 = HandsCalculator.calculateStraightScore(cards2);
+
+        //Then
+        assertEquals(15, result1);
+        assertEquals(55, result2);
+    }
+
+    @Test
+    void testCalculateFourOfAKindScore() {
+        //Given
+        List<Card> cards1 = List.of(
+                new Two(CardColor.HEARTS),
+                new Two(CardColor.SPADES),
+                new Two(CardColor.DIAMONDS),
+                new Two(CardColor.CLUBS),
+                new Seven(CardColor.HEARTS)
+        );
+        List<Card> cards2 = List.of(
+                new King(CardColor.DIAMONDS),
+                new King(CardColor.SPADES),
+                new King(CardColor.HEARTS),
+                new King(CardColor.CLUBS),
+                new Ten(CardColor.HEARTS)
+        );
+
+        //When
+        int result1 = HandsCalculator.calculateFourOfAKindScore(cards1);
+        int result2 = HandsCalculator.calculateFourOfAKindScore(cards2);
+
+        //Then
+        assertEquals(14, result1);
+        assertEquals(105, result2);
     }
 }

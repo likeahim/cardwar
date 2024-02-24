@@ -1,14 +1,14 @@
 package com.likeahim.texas.logic;
 
 public enum Hand {
-    STRAIGHT_FLUSH(100000, "straight flush"),
-    FOUR_OF_A_KIND(10000, "four of a kind"),
-    FULL_HOUSE(5000, "full house"),
-    FLUSH(1200, "flush"),
-    STRAIGHT(450, "straight"),
-    THREE_OF_A_KIND(120, "three of a kind"),
-    TWO_PAIRS(52, "two pairs"),
-    ONE_PAIR(5, "one pair"),
+    STRAIGHT_FLUSH(9, "straight flush"),
+    FOUR_OF_A_KIND(8, "four of a kind"),
+    FULL_HOUSE(7, "full house"),
+    FLUSH(6, "flush"),
+    STRAIGHT(5, "straight"),
+    THREE_OF_A_KIND(4, "three of a kind"),
+    TWO_PAIRS(3, "two pairs"),
+    ONE_PAIR(2, "one pair"),
     HIGH_CARD(1, "high card");
     ;
 
@@ -21,7 +21,7 @@ public enum Hand {
         this.name = name;
     }
 
-    public double getPower() {
+    public int getPower() {
         return power;
     }
 
@@ -34,6 +34,6 @@ public enum Hand {
     }
 
     public void setSingleGameStrength(int playersCardsValue) {
-        this.singleGameStrength = power * playersCardsValue;
+        this.singleGameStrength = playersCardsValue;
     }
 }
