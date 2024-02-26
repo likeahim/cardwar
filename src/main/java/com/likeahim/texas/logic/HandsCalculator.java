@@ -174,11 +174,15 @@ public class HandsCalculator {
             case FULL_HOUSE -> result = calculateFullHouseScore(handList);
             case FOUR_OF_A_KIND -> result = calculateFourOfAKindScore(handList);
             case STRAIGHT_FLUSH -> result = straightFlushScore(handList);
-            case HIGH_CARD -> result = handList.stream()
-                    .map(Card::getStrength)
-                    .max(Integer::compare).get();
+            case HIGH_CARD -> result = calculateHighCard(handList);
         }
         return result;
+    }
+
+    public static int calculateHighCard(List<Card> handList) {
+        return handList.stream()
+                .map(Card::getStrength)
+                .max(Integer::compare).get();
     }
 
     /*sums strength all cards and multiply it by power of enum STRAIGHT_FLUSH*/

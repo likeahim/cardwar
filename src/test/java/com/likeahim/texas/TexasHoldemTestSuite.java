@@ -188,4 +188,31 @@ public class TexasHoldemTestSuite {
         assertEquals(163, result1);
         assertEquals(1987, result2);
     }
+
+    @Test
+    void testHighCardScore() {
+        //Given
+        List<Card> cards1 = List.of(
+                new Two(CardColor.HEARTS),
+                new Two(CardColor.SPADES),
+                new Two(CardColor.DIAMONDS),
+                new Seven(CardColor.CLUBS),
+                new Seven(CardColor.HEARTS)
+        );
+        List<Card> cards2 = List.of(
+                new Ace(CardColor.DIAMONDS),
+                new Ace(CardColor.SPADES),
+                new Ace(CardColor.HEARTS),
+                new King(CardColor.CLUBS),
+                new King(CardColor.HEARTS)
+        );
+
+        //When
+        int result1 = HandsCalculator.calculateHighCard(cards1);
+        int result2 = HandsCalculator.calculateHighCard(cards2);
+
+        //Then
+        assertEquals(6, result1);
+        assertEquals(13, result2);
+    }
 }
