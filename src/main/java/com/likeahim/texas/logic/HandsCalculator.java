@@ -171,7 +171,7 @@ public class HandsCalculator {
             case THREE_OF_A_KIND -> result = calculateThreeOfAKindScore(handList);
             case STRAIGHT -> result = calculateStraightScore(handList);
             case FLUSH -> result = calculateFlushScore(handList);
-            case FULL_HOUSE -> result = fullHouseScore(handList);
+            case FULL_HOUSE -> result = calculateFullHouseScore(handList);
             case FOUR_OF_A_KIND -> result = calculateFourOfAKindScore(handList);
             case STRAIGHT_FLUSH -> result = straightFlushScore(handList);
             case HIGH_CARD -> result = handList.stream()
@@ -198,8 +198,18 @@ public class HandsCalculator {
         return fourOfAKindBase * Hand.FOUR_OF_A_KIND.getPower() + listWithHighCard.get(0);
     }
 
-    private static int fullHouseScore(List<Card> handList) {
-        return 0;
+    public static int calculateFullHouseScore(List<Card> handList) {
+        List<Integer> listWithDuplicates = getListWithDuplicates(handList);
+        HashSet<Integer> triple = new HashSet<>();
+        int tripleFullHouseBase = listWithDuplicates.stream()
+                .filter(n -> !triple.add(n))
+                .mapToInt(Integer::intValue)
+                .sum();
+        int doubleBase = listWithDuplicates.stream()
+                .filter(n -> n !=tripleFullHouseBase)
+                .mapToInt(Integer::intValue)
+                .sum();
+        return tripleFullHouseBase * 151 + doubleBase * 2;
     }
 
     /*sums strength all cards and multiply it by power of enum FLUSH*/

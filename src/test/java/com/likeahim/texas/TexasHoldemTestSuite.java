@@ -2,6 +2,7 @@ package com.likeahim.texas;
 
 import com.likeahim.cardwar.cards.*;
 import com.likeahim.texas.logic.HandsCalculator;
+import com.sun.java.accessibility.util.SwingEventMonitor;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -159,5 +160,32 @@ public class TexasHoldemTestSuite {
         //Then
         assertEquals(14, result1);
         assertEquals(105, result2);
+    }
+
+    @Test
+    void testCalculateFullHouseScore() {
+        //Given
+        List<Card> cards1 = List.of(
+                new Two(CardColor.HEARTS),
+                new Two(CardColor.SPADES),
+                new Two(CardColor.DIAMONDS),
+                new Seven(CardColor.CLUBS),
+                new Seven(CardColor.HEARTS)
+        );
+        List<Card> cards2 = List.of(
+                new Ace(CardColor.DIAMONDS),
+                new Ace(CardColor.SPADES),
+                new Ace(CardColor.HEARTS),
+                new King(CardColor.CLUBS),
+                new King(CardColor.HEARTS)
+        );
+
+        //When
+        int result1 = HandsCalculator.calculateFullHouseScore(cards1);
+        int result2 = HandsCalculator.calculateFullHouseScore(cards2);
+
+        //Then
+        assertEquals(163, result1);
+        assertEquals(1987, result2);
     }
 }
