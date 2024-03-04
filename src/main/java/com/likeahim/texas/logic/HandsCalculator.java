@@ -51,6 +51,8 @@ public class HandsCalculator {
     }
 
     public static boolean checkStraight(List<Card> showdownCards) {
+        if (!getListWithDuplicates(showdownCards).isEmpty())
+            return false;
         List<Integer> list = showdownCards.stream()
                 .map(Card::getStrength)
                 .toList();
@@ -110,57 +112,78 @@ public class HandsCalculator {
     }
 
 
-    public static List<List<Card>> generateCombination(List<Card> numbers, int combinationLength) {
-        Set<List<Card>> workSet = new HashSet<>();
-        Random random = new Random();
-        while (workSet.size() < 21) {
-            List<Card> workList = new ArrayList<>();
-            while (workList.size() < 5) {
-                int index = random.nextInt(7);
-                Card card = numbers.get(index);
-                if (!workList.contains(card))
-                    workList.add(card);
-            }
-            workSet.add(new ArrayList<>(workList));
+    public static List<List<Card>> generateCombinations(List<Card> cards, List<Card> combination, int combinationLength, int startIndex) {
+        List<List<Card>> combinations = new ArrayList<>();
+
+        if (combination.size() == combinationLength) {
+            combinations.add(new ArrayList<>(combination));
+            return combinations;
         }
 
-        return workSet.stream().toList();
+        for (int i = startIndex; i < cards.size(); i++) {
+            combination.add(cards.get(i));
+            combinations.addAll(generateCombinations(cards, combination, combinationLength, i + 1));
+            combination.remove(combination.size() - 1);  // remove the last card for the next combination
+        }
+
+        return combinations;
     }
+//    public static List<List<Card>> generateCombination(List<Card> cards, int combinationLength) {
+//        Set<List<Card>> workSet = new HashSet<>();
+//        Random random = new Random();
+//        while (workSet.size() < 21) {
+//            List<Card> workList = new ArrayList<>();
+//            while (workList.size() < 5) {
+//                int index = random.nextInt(7);
+//                Card card = cards.get(index);
+//                if (!workList.contains(card))
+//                    workList.add(card);
+//            }
+//            workSet.add(new ArrayList<>(workList));
+//        }
+//
+//        return workSet.stream().toList();
+//    }
     /*return Player, who has the highest hand in showdown*/
     /*before this method check if list singleGamePlayers has only one player left, if yes - set player as singleGameWinner and avoid this method*/
 
     public static Player getSingleGameWinner(List<Player> singleGamePlayers) {
-        List<Player> winnerPlayer = new ArrayList<>(singleGamePlayers);
         for (int i = 0; i < singleGamePlayers.size(); i++) {
             Player player = singleGamePlayers.get(i);
             List<Card> playersCardsInSingleGame = new ArrayList<>(PokerTable.getCommunityCards());
             playersCardsInSingleGame.addAll(player.getCuffsCards());
-            List<List<Card>> lists = generateCombination(playersCardsInSingleGame, 5);
-            setPlayersBestHand(lists, player);
-
+            List<List<Card>> lists = generateCombinations(playersCardsInSingleGame, new ArrayList<>(), 5, 0);
+            setPlayersBestHand(lists, player); //don't recognize full house?
         }
         List<Player> list = singleGamePlayers.stream()
-                .sorted((player, t1) -> player.compare(player, t1))
+                .sorted((player, t1) -> player.compare(player, t1)) //don't see second player to confirm
                 .toList();
         return list.get(0);
     }
 
     private static void setPlayersBestHand(List<List<Card>> lists, Player player) {
         Hand hand = Hand.HIGH_CARD;
-        hand.setSingleGameStrength(0);
+        hand.setSingleGameStrength(180);
         for (List<Card> list : lists) {
             Hand tempHand = checkWhichHand(list);
-//            Integer sum = list.stream()
-//                    .map(Card::getStrength)
-//                    .reduce(Integer::sum)
-//                            .get();
-//            int sum = calculateHandsStrength(hand, list);
-//            tempHand.setSingleGameStrength(sum);
-            if (tempHand.getSingleGameStrength() > hand.getSingleGameStrength()) {
-                player.setStrongestHandMark(tempHand);
-                player.setStrongestHandList(list);
+            int sum = calculateHandsStrength(tempHand, list);
+            tempHand.setSingleGameStrength(sum);
+            if(tempHand.getPower() > hand.getPower()) {
+                assignPlayersStrongestHand(player, list, tempHand);
+                hand = tempHand;
             }
+            else if (tempHand.getPower() == hand.getPower() && tempHand.getSingleGameStrength() > hand.getSingleGameStrength()) {
+                assignPlayersStrongestHand(player, list, tempHand);
+                hand = tempHand;
+            }
+            else
+                assignPlayersStrongestHand(player, list, hand);
         }
+    }
+
+    private static void assignPlayersStrongestHand(Player player, List<Card> list, Hand tempHand) {
+        player.setStrongestHandMark(tempHand);
+        player.setStrongestHandList(list);
     }
 
     private static int calculateHandsStrength(Hand hand, List<Card> handList) {
@@ -180,9 +203,11 @@ public class HandsCalculator {
     }
 
     public static int calculateHighCard(List<Card> handList) {
-        return handList.stream()
+        List<Integer> list = handList.stream()
                 .map(Card::getStrength)
-                .max(Integer::compare).get();
+                .sorted(Comparator.reverseOrder())
+                .toList();
+        return list.get(0)*13 + list.get(1)*12 + list.get(2)*11 + list.get(3)*10 + list.get(4)*9;
     }
 
     /*sums strength all cards and multiply it by power of enum STRAIGHT_FLUSH*/
@@ -191,7 +216,7 @@ public class HandsCalculator {
     }
 
     /*multiply four of a kind base by power of enum FOUR_OF_A_KIND
-    * and add last cards strength*/
+     * and add last cards strength*/
     public static int calculateFourOfAKindScore(List<Card> handList) {
         List<Integer> listWithDuplicates = getListWithDuplicates(handList);
         Integer fourOfAKindBase = listWithDuplicates.get(0);
@@ -210,7 +235,7 @@ public class HandsCalculator {
                 .mapToInt(Integer::intValue)
                 .sum();
         int doubleBase = listWithDuplicates.stream()
-                .filter(n -> n !=tripleFullHouseBase)
+                .filter(n -> n != tripleFullHouseBase)
                 .mapToInt(Integer::intValue)
                 .sum();
         return tripleFullHouseBase * 151 + doubleBase * 2;
@@ -243,7 +268,7 @@ public class HandsCalculator {
     }
 
     /*sums: bigger pairs base and multiply it by 151, than takes smaller pairs base
-    * and multiply it by 13 and strength of card, which doesn't belong to any pair*/
+     * and multiply it by 13 and strength of card, which doesn't belong to any pair*/
     public static int calculateTwoPairsScore(List<Card> handList) {
         List<Integer> listWithDuplicates = getListWithDuplicates(handList);
         List<Integer> listSorted = listWithDuplicates.stream()
@@ -265,10 +290,10 @@ public class HandsCalculator {
         List<Integer> list = handList.stream()
                 .map(Card::getStrength)
                 .filter(c -> !(c.equals(pairBase)))
+                .sorted(Comparator.reverseOrder())
                 .toList();
 
-        return pairBase * 38 + list.stream()
-                .reduce(0, Integer::sum);
+        return pairBase * 38 + list.get(0) * 26 + list.get(1) * 13 + list.get(2);
     }
 
     private static Hand checkWhichHand(List<Card> list) {

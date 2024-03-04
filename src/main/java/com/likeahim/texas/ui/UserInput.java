@@ -1,8 +1,10 @@
 package com.likeahim.texas.ui;
 
+import com.likeahim.cardwar.cards.Card;
 import com.likeahim.texas.logic.Player;
 import com.likeahim.texas.logic.PokerTable;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class UserInput {
@@ -63,6 +65,7 @@ public class UserInput {
     private static void currentGameInfo(Player player) {
         if(!PokerTable.getCommunityCards().isEmpty()) {
             System.out.println(player.getName() + " " + player.getCuffsCards() + "\n" +
+                               "credit: " + player.getCredit() +
                                "current bet: " + PokerTable.getCurrentBet() + "\n" +
                                "player bet already: " + player.getAmountBetAlready() +
                                ", community cards: " + PokerTable.getCommunityCards() + "\n" +
@@ -73,6 +76,7 @@ public class UserInput {
                                        3 -> raise
                                        4 -> all in
                                        """);
+            System.out.print("players choice: ");
         } else {
             System.out.println(player.getName() + " " + player.getCuffsCards() + "\n" +
                                "current bet: " + PokerTable.getCurrentBet() + "\n" +
@@ -85,6 +89,14 @@ public class UserInput {
                                        4 -> all in
                                        """);
         }
+    }
+
+    public void showCommunityCards(List<Card> communityCards) {
+        System.out.println("community cards: " + communityCards);
+    }
+
+    public void showSingleGameWinner(Player singleGameWinner) {
+        System.out.println(singleGameWinner + " wins this round");
     }
 }
 

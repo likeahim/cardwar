@@ -1,6 +1,8 @@
 package com.likeahim.texas.logic;
 
-public enum Hand {
+import java.util.Comparator;
+
+public enum Hand implements Comparator<Hand> {
     STRAIGHT_FLUSH(9, "straight flush"),
     FOUR_OF_A_KIND(8, "four of a kind"),
     FULL_HOUSE(7, "full house"),
@@ -35,5 +37,10 @@ public enum Hand {
 
     public void setSingleGameStrength(int playersCardsValue) {
         this.singleGameStrength = playersCardsValue;
+    }
+
+    @Override
+    public int compare(Hand h1, Hand h2) {
+        return -Integer.compare(h1.getPower(), h2.getPower());
     }
 }

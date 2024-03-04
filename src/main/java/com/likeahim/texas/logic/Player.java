@@ -8,9 +8,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class Player implements Comparator<Player> {
+public class Player implements Comparator<Player>, Comparable<Player> {
     private final String name;
     private double credit;
+    private int startingNumber;
 
     private double amountBetAlready;
 
@@ -24,6 +25,19 @@ public class Player implements Comparator<Player> {
     private List<Card> strongestHandList = new ArrayList<>();
     private List<Card> cuffsCards = new ArrayList<>();
     private Hand strongestHandMark;
+    private int powerInHand;
+
+    public int getStartingNumber() {
+        return startingNumber;
+    }
+
+    public void setStartingNumber(int startingNumber) {
+        this.startingNumber = startingNumber;
+    }
+    public void setStartingNrForNext() {
+        if(getNext().getStartingNumber() != 1)
+            this.getNext().setStartingNumber(this.startingNumber + 1);
+    }
 
     public List<Card> getCuffsCards() {
         return cuffsCards;
@@ -92,6 +106,7 @@ public class Player implements Comparator<Player> {
 
     public void setPass(boolean pass) {
         this.pass = pass;
+        PokerTable.getPlayerOutOfRound().add(this);
         PokerTable.getSingleGamePlayers().remove(this);
     }
 
@@ -164,18 +179,7 @@ public class Player implements Comparator<Player> {
             PokerTable.getSingleGamePlayers().add(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
-        return Double.compare(credit, player.credit) == 0 && Objects.equals(name, player.name);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, credit);
-    }
 
     @Override
     public String toString() {
@@ -187,6 +191,12 @@ public class Player implements Comparator<Player> {
     //method helps sort players by strongest hand
     @Override
     public int compare(Player p1, Player p2) {
-        return p1.getStrongestHandMark().compareTo(p2.getStrongestHandMark());
+        return -Integer.compare(p1.getStrongestHandMark().getPower(), p2.getStrongestHandMark().getPower());
+    }
+
+
+    @Override
+    public int compareTo(Player player) {
+        return Integer.compare(this.startingNumber, player.startingNumber);
     }
 }

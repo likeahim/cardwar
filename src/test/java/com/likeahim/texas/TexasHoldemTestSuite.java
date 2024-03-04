@@ -5,6 +5,7 @@ import com.likeahim.texas.logic.HandsCalculator;
 import com.sun.java.accessibility.util.SwingEventMonitor;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,7 @@ public class TexasHoldemTestSuite {
                 new Seven(CardColor.HEARTS),
                 new Jack(CardColor.DIAMONDS));
         //When
-        List<List<Card>> lists = HandsCalculator.generateCombination(cards, 5);
+        List<List<Card>> lists = HandsCalculator.generateCombinations(cards, new ArrayList<>(), 5, 0);
         int size = lists.size();
 
         //Then
@@ -35,10 +36,10 @@ public class TexasHoldemTestSuite {
         //Given
         List<Card> cards = List.of(
                 new Ace(CardColor.DIAMONDS),
-                new Two(CardColor.SPADES),
-                new Two(CardColor.DIAMONDS),
-                new Three(CardColor.CLUBS),
-                new Five(CardColor.HEARTS)
+                new Ace(CardColor.SPADES),
+                new King(CardColor.DIAMONDS),
+                new Queen(CardColor.CLUBS),
+                new Jack(CardColor.HEARTS)
         );
         List<Card> cards2 = List.of(
                 new Ace(CardColor.DIAMONDS),
@@ -52,8 +53,8 @@ public class TexasHoldemTestSuite {
         int result2 = HandsCalculator.calculateOnePairScore(cards2);
 
         //Then
-        assertEquals(57, result);
-        assertEquals(500, result2);
+        assertEquals(959, result);
+        assertEquals(599, result2);
     }
 
     @Test
@@ -193,18 +194,18 @@ public class TexasHoldemTestSuite {
     void testHighCardScore() {
         //Given
         List<Card> cards1 = List.of(
-                new Two(CardColor.HEARTS),
+                new Three(CardColor.HEARTS),
                 new Two(CardColor.SPADES),
-                new Two(CardColor.DIAMONDS),
+                new Five(CardColor.DIAMONDS),
                 new Seven(CardColor.CLUBS),
-                new Seven(CardColor.HEARTS)
+                new Nine(CardColor.HEARTS)
         );
         List<Card> cards2 = List.of(
                 new Ace(CardColor.DIAMONDS),
-                new Ace(CardColor.SPADES),
-                new Ace(CardColor.HEARTS),
-                new King(CardColor.CLUBS),
-                new King(CardColor.HEARTS)
+                new King(CardColor.SPADES),
+                new Three(CardColor.HEARTS),
+                new Jack(CardColor.CLUBS),
+                new Seven(CardColor.HEARTS)
         );
 
         //When
@@ -212,7 +213,7 @@ public class TexasHoldemTestSuite {
         int result2 = HandsCalculator.calculateHighCard(cards2);
 
         //Then
-        assertEquals(6, result1);
-        assertEquals(13, result2);
+        assertEquals(249, result1);
+        assertEquals(501, result2);
     }
 }
