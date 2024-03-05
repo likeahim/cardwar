@@ -34,8 +34,9 @@ public class Player implements Comparator<Player>, Comparable<Player> {
     public void setStartingNumber(int startingNumber) {
         this.startingNumber = startingNumber;
     }
+
     public void setStartingNrForNext() {
-        if(getNext().getStartingNumber() != 1)
+        if (getNext().getStartingNumber() != 1)
             this.getNext().setStartingNumber(this.startingNumber + 1);
     }
 
@@ -106,7 +107,7 @@ public class Player implements Comparator<Player>, Comparable<Player> {
 
     public void setPass(boolean pass) {
         this.pass = pass;
-        PokerTable.getPlayerOutOfRound().add(this);
+        PokerTable.getPlayerOutOfGame().add(this);
         PokerTable.getSingleGamePlayers().remove(this);
     }
 
@@ -141,6 +142,9 @@ public class Player implements Comparator<Player>, Comparable<Player> {
     public void setAmountBetAlready(double amountBetAlready) {
         this.amountBetAlready += amountBetAlready;
     }
+    public void resetAmountBetAlready() {
+        this.amountBetAlready = 0;
+    }
 
     public void checkTheBet() {
         if (amountBetAlready < PokerTable.getCurrentBet()) {
@@ -173,13 +177,24 @@ public class Player implements Comparator<Player>, Comparable<Player> {
     public void betAllIn() {
         setAllIn(true);
         setAmountBetAlready(credit);
-        credit = 0;
         PokerTable.setCurrentBet(credit);
+        credit = 0;
         if (!PokerTable.getSingleGamePlayers().contains(this))
             PokerTable.getSingleGamePlayers().add(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Double.compare(credit, player.credit) == 0 && startingNumber == player.startingNumber && Objects.equals(name, player.name);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, credit, startingNumber);
+    }
 
     @Override
     public String toString() {
@@ -188,6 +203,7 @@ public class Player implements Comparator<Player>, Comparable<Player> {
         else
             return "player " + name + ", credit balance: " + credit;
     }
+
     //method helps sort players by strongest hand
     @Override
     public int compare(Player p1, Player p2) {

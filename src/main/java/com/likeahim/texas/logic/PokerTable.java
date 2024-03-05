@@ -16,7 +16,7 @@ public class PokerTable {
     private static List<Card> communityCards = new LinkedList<>();
     private static double smallBlind = 20;
     private static double bigBlind = smallBlind * 2;
-    private static double CURRENT_BET = bigBlind;
+    private static double CURRENT_BET;
     private Player dealer;
     private Player playerOnSmallBlind;
     private Player playerOnBigBlind;
@@ -25,7 +25,7 @@ public class PokerTable {
 
     private static Player winner;
     private static List<Player> SINGLE_GAME_PLAYERS = new LinkedList<>();
-    private static List<Player> PLAYER_OUT_OF_ROUND = new LinkedList<>();
+    private static List<Player> PLAYER_OUT_OF_GAME = new LinkedList<>();
 
     public static void addPlayer(Player player) {
         PLAYERS_AT_TABLE.add(player);
@@ -45,45 +45,105 @@ public class PokerTable {
         while (playersNumber > 1) {
             setSingleGamePlayers(new LinkedList<>(PLAYERS_AT_TABLE));
             shuffleAndDealCuffsCards();
-//            setCurrentBet(bigBlind); //CURRENT_BET already defined
+            setCurrentBet(bigBlind); //CURRENT_BET already defined
             if (actionChoice()) {
                 communityCards = dealFlopCards(); //or better as void?
                 ui.showCommunityCards(communityCards);
                 refreshPlayersBettingStatus();
-            }
-            if(actionChoice()) {
-                communityCards = dealOneCard();
-                ui.showCommunityCards(communityCards);
-                refreshPlayersBettingStatus();
+                refreshThePot();
             }
             if (actionChoice()) {
                 communityCards = dealOneCard();
                 ui.showCommunityCards(communityCards);
                 refreshPlayersBettingStatus();
+                refreshThePot();
+            }
+            if (actionChoice()) {
+                communityCards = dealOneCard();
+                ui.showCommunityCards(communityCards);
+                refreshPlayersBettingStatus();
+                refreshThePot();
             }
             if (actionChoice()) {
                 showdown();
+                refreshThePot();
             }
             singleGameWinner = HandsCalculator.getSingleGameWinner(SINGLE_GAME_PLAYERS);
-            resetTableCast();
             releaseAndCleanThePot();
+            if (checkIfThereIsTheWinner()) {
+                return true;
+            }
+            setNextAndPrevForRemainingPlayers();
             changeBlinds();
+            resetTableCast();
             cleanCuffsForAllPlayers();
             cleanCommunityCards();
+            resetAmountBetAlreadyForAll();
+            CURRENT_BET = 0;
             ui.showSingleGameWinner(singleGameWinner);
             singleGameWinner = null;
             refreshPlayersBettingStatus();
-            refreshPlayersPassAction();
+            refreshPlayersPassAndAllInAction();
             setRoundStartingNumbers(PLAYERS_AT_TABLE);
         }
         return true;
     }
 
+    private void refreshThePot() {
+        THE_POT = 0;
+        for (int i = 0; i < SINGLE_GAME_PLAYERS.size(); i++) {
+            THE_POT += SINGLE_GAME_PLAYERS.get(i).getAmountBetAlready();
+        }
+    }
+
+    private boolean checkIfThereIsTheWinner() {
+        int counter = 0;
+        for (Player player : PLAYERS_AT_TABLE) {
+            if (player.getCredit() > 0)
+                counter++;
+        }
+        return counter == 1;
+    }
+
     private static void resetTableCast() {
+        setNextAndPrevForRemainingPlayers();
         List<Player> list = PLAYERS_AT_TABLE.stream()
                 .filter(player -> player.getCredit() > 0)
                 .toList();
         PLAYERS_AT_TABLE = new LinkedList<>(list);
+    }
+
+    private static void setNextAndPrevForRemainingPlayers() {
+        for (int i = 0; i < PLAYERS_AT_TABLE.size(); i++) {
+            if (PLAYERS_AT_TABLE.get(i).getCredit() == 0) {
+                PLAYERS_AT_TABLE.get(i).getPrev().setNext(PLAYERS_AT_TABLE.get(i).getNext());
+                PLAYERS_AT_TABLE.get(i).getNext().setPrev(PLAYERS_AT_TABLE.get(i).getPrev());
+            }
+        }
+    }
+
+    private void changeBlinds() {
+
+        if (PLAYERS_AT_TABLE.size() > 2) {
+            for (int i = 0; i < PLAYERS_AT_TABLE.size(); i++) {
+                Player tempPlayer = PLAYERS_AT_TABLE.get(i);
+                Player nextPlayer = tempPlayer.getNext();
+                if (nextPlayer.getCredit() != 0) {
+                    if (tempPlayer.equals(playerOnSmallBlind))
+                        setPlayerOnSmallBlind(nextPlayer);
+                    if (tempPlayer.equals(playerOnBigBlind))
+                        setPlayerOnBigBlind(nextPlayer);
+                    if (tempPlayer.equals(dealer))
+                        setDealer(nextPlayer);
+                }
+            }
+        } else {
+            Player playerOne = PLAYERS_AT_TABLE.get(0);
+            Player playerTwo = PLAYERS_AT_TABLE.get(1);
+            playerOnSmallBlind = playerOnSmallBlind.equals(playerOne) ? playerTwo : playerOne;
+            playerOnBigBlind = playerOnBigBlind.equals(playerOne) ? playerTwo : playerOne;
+        }
+
     }
 
 
@@ -98,9 +158,10 @@ public class PokerTable {
         }
     }
 
-    private void refreshPlayersPassAction() {
+    private void refreshPlayersPassAndAllInAction() {
         for (Player player : PLAYERS_AT_TABLE) {
             player.setPass(false);
+            player.setAllIn(false);
         }
     }
 
@@ -129,16 +190,24 @@ public class PokerTable {
                 .forEach(Player::cleanCuffsCards);
     }
 
+    private void resetAmountBetAlreadyForAll() {
+        PLAYERS_AT_TABLE
+                .forEach(Player::resetAmountBetAlready);
+    }
+
     public static List<Card> getCommunityCards() {
         return communityCards;
     }
 
     private boolean actionChoice() {
         while (!bettingFinished())
-            for (int i = 0; i < SINGLE_GAME_PLAYERS.size(); i ++) {
+            for (int i = 0; i < SINGLE_GAME_PLAYERS.size(); i++) {
                 Player player = SINGLE_GAME_PLAYERS.get(i);
-                if(!player.isCheckBet() && !player.isPass() && !player.isAllIn())
-                    UserInput.choiceAction(player);
+                if (!player.isCheckBet() && !player.isPass())
+                    if (!player.isAllIn())
+                        UserInput.choiceAction(player);
+                    else
+                        continue;
             }
 //        while(!SINGLE_WINNER && SINGLE_GAME_PLAYER.size() > 1) {
 //            playersAtTable.stream()
@@ -153,9 +222,10 @@ public class PokerTable {
 //                    .toList();
 //            singleGameWinner = collect.get(0);
 //        }
-        return singleGameWinner == null;
+        return SINGLE_GAME_PLAYERS.size() > 1;
     }
-/*check if all players already resigned or checked the bet*/
+    /*check if all players already resigned or checked the bet*/
+
     private boolean bettingFinished() {
         long count = SINGLE_GAME_PLAYERS.stream()
                 .filter(player -> player.isCheckBet())
@@ -163,7 +233,10 @@ public class PokerTable {
         long count1 = SINGLE_GAME_PLAYERS.stream()
                 .filter(player -> player.isPass())
                 .count();
-        return count + count1 == SINGLE_GAME_PLAYERS.size();
+        long count3 = SINGLE_GAME_PLAYERS.stream()
+                .filter(player -> player.isAllIn())
+                .count();
+        return count + count1 + count3 == SINGLE_GAME_PLAYERS.size();
 
     }
 
@@ -177,30 +250,26 @@ public class PokerTable {
         }
         PLAYERS_AT_TABLE.sort(Player::compareTo);
     }
-    private void changeBlinds() {
-
-        Set<Player> temp = new TreeSet<>();
-        setDealer(getPlayerOnSmallBlind());
-        setPlayerOnSmallBlind(getPlayerOnBigBlind());
-        setPlayerOnBigBlind(getPlayerOnBigBlind().getNext());
-        getPlayerOnSmallBlind().setCredit(-smallBlind);
-        getPlayerOnBigBlind().setCredit(-bigBlind);
-    }
 
     private void setPlayersOnBlinds() {
         setPlayersOrder();
-        Player player = PLAYERS_AT_TABLE.get(PLAYERS_AT_TABLE.size() - 1);
-        Player smallBlindPlayer = player.getNext();
-        Player bigBlindPlayer = smallBlindPlayer.getNext();
-        setDealer(player);
-        setPlayerOnSmallBlind(smallBlindPlayer);
-        smallBlindPlayer.setAmountBetAlready(smallBlind);
-        smallBlindPlayer.setCredit(-smallBlind);
-        setPlayerOnBigBlind(bigBlindPlayer);
-        bigBlindPlayer.setAmountBetAlready(bigBlind);
-        bigBlindPlayer.setCredit(-bigBlind);
-        SINGLE_GAME_PLAYERS.add(smallBlindPlayer);
-        SINGLE_GAME_PLAYERS.add(bigBlindPlayer);
+        if (PLAYERS_AT_TABLE.size() > 2) {
+            Player player = PLAYERS_AT_TABLE.get(PLAYERS_AT_TABLE.size() - 1);
+            Player smallBlindPlayer = player.getNext();
+            Player bigBlindPlayer = smallBlindPlayer.getNext();
+            setDealer(player);
+            setPlayerOnSmallBlind(smallBlindPlayer);
+            smallBlindPlayer.setAmountBetAlready(smallBlind);
+            smallBlindPlayer.setCredit(-smallBlind);
+            setPlayerOnBigBlind(bigBlindPlayer);
+            bigBlindPlayer.setAmountBetAlready(bigBlind);
+            bigBlindPlayer.setCredit(-bigBlind);
+            SINGLE_GAME_PLAYERS.add(smallBlindPlayer);
+            SINGLE_GAME_PLAYERS.add(bigBlindPlayer);
+        } else {
+            setPlayerOnSmallBlind(PLAYERS_AT_TABLE.get(0));
+            setPlayerOnBigBlind(PLAYERS_AT_TABLE.get(1));
+        }
     }
 
     private static void setPlayersOrder() {
@@ -262,12 +331,12 @@ public class PokerTable {
         SINGLE_GAME_PLAYERS = singleGamePlayers;
     }
 
-    public static List<Player> getPlayerOutOfRound() {
-        return PLAYER_OUT_OF_ROUND;
+    public static List<Player> getPlayerOutOfGame() {
+        return PLAYER_OUT_OF_GAME;
     }
 
-    public static void setPlayerOutOfRound(List<Player> playerOutOfRound) {
-        PLAYER_OUT_OF_ROUND = playerOutOfRound;
+    public static void setPlayerOutOfGame(List<Player> playerOutOfGame) {
+        PLAYER_OUT_OF_GAME = playerOutOfGame;
     }
 
     public double getSmallBlind() {

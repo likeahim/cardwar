@@ -148,6 +148,16 @@ public class HandsCalculator {
     /*before this method check if list singleGamePlayers has only one player left, if yes - set player as singleGameWinner and avoid this method*/
 
     public static Player getSingleGameWinner(List<Player> singleGamePlayers) {
+        Player singleWinner = null;
+        int counter = 0;
+        for (Player player : singleGamePlayers) {
+            if (player.isAllIn()) {
+                counter++;
+                singleWinner = player;
+            }
+        }
+        if (counter == 1)
+            return singleWinner;
         for (int i = 0; i < singleGamePlayers.size(); i++) {
             Player player = singleGamePlayers.get(i);
             List<Card> playersCardsInSingleGame = new ArrayList<>(PokerTable.getCommunityCards());
