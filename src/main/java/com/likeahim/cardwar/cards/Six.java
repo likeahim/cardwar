@@ -1,6 +1,6 @@
 package com.likeahim.cardwar.cards;
 
-public class Six implements Card {
+public class Six implements Card, Comparable<Card> {
 
     private final int strength = 5;
     private final char initial = '6';
@@ -35,6 +35,6 @@ public class Six implements Card {
 
     @Override
     public int compareTo(Card card) {
-        return Integer.compare(card.getStrength(), this.getStrength());
+        return Integer.compare(this.getStrength(), card.getStrength());
     }
 }

@@ -5,6 +5,7 @@ import com.likeahim.cardwar.cards.CardColor;
 import com.likeahim.cardwar.cards.MapOfCards;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class HandsCalculator {
@@ -50,19 +51,15 @@ public class HandsCalculator {
         return list.size() == 2 && sum / list.size() == list.get(0);
     }
 
+    //method proofs if the power difference between biggest and smallest card equals 4
     public static boolean checkStraight(List<Card> showdownCards) {
         if (!getListWithDuplicates(showdownCards).isEmpty())
             return false;
-        List<Integer> list = showdownCards.stream()
+        List<Integer> sortedList = showdownCards.stream()
+                .sorted()
                 .map(Card::getStrength)
                 .toList();
-        OptionalInt max = IntStream.range(0, list.size())
-                .map(n -> list.get(n))
-                .max();
-        int asInt = max.getAsInt() * 5;
-        int sum = list.stream().mapToInt(integer -> integer)
-                .sum();
-        return asInt - sum == 10;
+        return sortedList.get(0) - sortedList.get(4) == 4;
     }
 
     //this method must be called after checkStraightFlush() and checkStraight() methods, if they return false
@@ -271,7 +268,7 @@ public class HandsCalculator {
         List<Integer> listWithHighCards = handList.stream()
                 .map(Card::getStrength)
                 .filter(c -> !(c.equals(threeOfAKindBase)))
-                .sorted(Integer::compareTo)
+                .sorted(Comparator.reverseOrder())
                 .toList();
 
         return threeOfAKindBase * 100 + listWithHighCards.get(0) + listWithHighCards.get(1);
@@ -282,7 +279,7 @@ public class HandsCalculator {
     public static int calculateTwoPairsScore(List<Card> handList) {
         List<Integer> listWithDuplicates = getListWithDuplicates(handList);
         List<Integer> listSorted = listWithDuplicates.stream()
-                .sorted(Integer::compareTo)
+                .sorted(Comparator.reverseOrder())
                 .toList();
         Integer pairBaseBigger = listSorted.get(1); ///how to reverse sorting
         Integer pairBaseSmaller = listSorted.get(0);

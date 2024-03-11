@@ -74,6 +74,7 @@ public class PokerTable {
                 return true;
             }
             setNextAndPrevForRemainingPlayers();
+            //does not work correctly
             changeBlinds();
             resetTableCast();
             cleanCuffsForAllPlayers();
@@ -91,8 +92,8 @@ public class PokerTable {
 
     private void refreshThePot() {
         THE_POT = 0;
-        for (int i = 0; i < SINGLE_GAME_PLAYERS.size(); i++) {
-            THE_POT += SINGLE_GAME_PLAYERS.get(i).getAmountBetAlready();
+        for (int i = 0; i < PLAYERS_AT_TABLE.size(); i++) {
+            THE_POT += PLAYERS_AT_TABLE.get(i).getAmountBetAlready();
         }
     }
 
@@ -106,7 +107,6 @@ public class PokerTable {
     }
 
     private static void resetTableCast() {
-        setNextAndPrevForRemainingPlayers();
         List<Player> list = PLAYERS_AT_TABLE.stream()
                 .filter(player -> player.getCredit() > 0)
                 .toList();
@@ -209,19 +209,7 @@ public class PokerTable {
                     else
                         continue;
             }
-//        while(!SINGLE_WINNER && SINGLE_GAME_PLAYER.size() > 1) {
-//            playersAtTable.stream()
-//                    .filter(player -> player.isPass())
-//                    .filter((player -> player.isCheckBet()))
-//                    .filter(player -> player.isAllIn())
-//                    .forEach(UserInput::choiceAction);
-//        }
-//        if(SINGLE_WINNER) {
-//            List<Player> collect = playersAtTable.stream()
-//                    .filter(player -> !player.isPass())
-//                    .toList();
-//            singleGameWinner = collect.get(0);
-//        }
+
         return SINGLE_GAME_PLAYERS.size() > 1;
     }
     /*check if all players already resigned or checked the bet*/

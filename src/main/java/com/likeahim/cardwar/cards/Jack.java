@@ -1,6 +1,6 @@
 package com.likeahim.cardwar.cards;
 
-public class Jack implements Card {
+public class Jack implements Card, Comparable<Card> {
 
     private final int strength = 10;
     private final char initial = 'J';

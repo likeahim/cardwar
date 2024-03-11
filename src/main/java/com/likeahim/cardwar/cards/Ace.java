@@ -3,7 +3,7 @@ package com.likeahim.cardwar.cards;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class Ace implements Card {
+public class Ace implements Card, Comparable<Card> {
 
     private static final int strength = 13;
     private final char initial = 'A';
@@ -49,9 +49,10 @@ public class Ace implements Card {
         return Objects.hash(strength);
     }
 
+
     @Override
     public int compareTo(Card card) {
-        return -Integer.compare(card.getStrength(), this.getStrength());
+        return Integer.compare(this.getStrength(), card.getStrength());
     }
 }
 

@@ -2,7 +2,7 @@ package com.likeahim.cardwar.cards;
 
 import java.util.Objects;
 
-public class King implements Card {
+public class King implements Card, Comparable<Card> {
 
     private final int strength = 12;
     private final char initial = 'K';
@@ -49,7 +49,7 @@ public class King implements Card {
 
     @Override
     public int compareTo(Card card) {
-        return Integer.compare(card.getStrength(), this.getStrength());
+        return Integer.compare(this.getStrength(), card.getStrength());
     }
 }
 
